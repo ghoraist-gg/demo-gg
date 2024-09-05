@@ -1,3 +1,5 @@
 # demo-gg
 
-Demo repository for GitGuardian products
+Demo repository for GitGuardian products:
+* ggshield
+* GIM
