@@ -3,3 +3,4 @@
 Demo repository for GitGuardian products:
 * ggshield
 * GIM
+* HoneyToken
