@@ -1,13 +1,10 @@
-import requests
 import os
+import gg_helpers
 from dotenv import load_dotenv
 
 # Load API key from .env file
 load_dotenv()
 API_KEY = os.getenv("GITGUARDIAN_API_KEY")
-
-# Set the base URL for the API
-BASE_URL = "https://api.gitguardian.com"
 
 # Set the headers for authentication
 headers = {
@@ -15,10 +12,9 @@ headers = {
     "Content-Type": "application/json"
 }
 
-# Function to list existing secrets
 def getHealthCheck():
-    url = f"{BASE_URL}/v1/health"
-    response = requests.get(url, headers=headers)
+    url = "v1/health"
+    response = gg_helpers.GG_API_GET_RESPONSE(url, headers)
     print(f"Response: {response.status_code} - {response.text}")
 
 if __name__ == "__main__":

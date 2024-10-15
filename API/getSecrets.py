@@ -1,15 +1,7 @@
-import requests
 import os
 import json
+import gg_helpers
 from dotenv import load_dotenv
-
-# -----------------------
-# INIT part
-# -----------------------
-
-# Set the base URL for the API
-BASE_URL = "https://api.gitguardian.com/v1/"
-
 
 # -----------------------
 # AUTHENT part
@@ -32,8 +24,8 @@ HEADERS = {
 # https://api.gitguardian.com/docs#tag/Secret-Incidents
 # -----------------------
 def list_secrets():
-    target = "incidents/secrets"
-    allMySecrets = GG_API_GET(target)            
+    target = "v1/incidents/secrets"
+    allMySecrets = gg_helpers.GG_API_GET_OBJECT(target, HEADERS)            
     
     print(f"Number of incidents: {len(allMySecrets)}")
         
@@ -44,22 +36,6 @@ def list_secrets():
         print(incidentData)
         print(f"-----------")
 
-# -----------------------
-# Generic function to query the API and manage pagination
-# https://docs.gitguardian.com/api-docs/pagination
-# -----------------------
-def GG_API_GET(_endpoint ):
-    _url = f"{BASE_URL}{_endpoint}"
-    _headers = HEADERS
-    API_Data = []    
-    while True:
-        response = requests.get(_url, headers=_headers)
-        assert response.status_code == 200
-        API_Data += response.json()
-        if "next" not in response.links:
-            break
-        _url = response.links["next"]["url"]  
-    return API_Data
 
 # -----------------------            
 # MAIN function
