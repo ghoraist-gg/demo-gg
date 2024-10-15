@@ -14,8 +14,12 @@ headers = {
 
 def getHealthCheck():
     url = "v1/health"
-    response = gg_helpers.GG_API_GET_RESPONSE(url, headers)
-    print(f"Response: {response.status_code} - {response.text}")
-
+    
+    try:
+        response = gg_helpers.GG_API_GET_RESPONSE(url, headers)
+        print(f"Response: {response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"Error Detected: {e}")
+    
 if __name__ == "__main__":
     getHealthCheck()

@@ -25,17 +25,18 @@ HEADERS = {
 # -----------------------
 def list_secrets():
     target = "v1/incidents/secrets"
-    allMySecrets = gg_helpers.GG_API_GET_OBJECT(target, HEADERS)            
     
-    print(f"Number of incidents: {len(allMySecrets)}")
-        
-    for index, incident in enumerate(allMySecrets):
-        print(f"Incident #{index+1} :")
-        print(f"-----------")
-        incidentData = json.dumps(incident, indent=4)
-        print(incidentData)
-        print(f"-----------")
-
+    try:
+        allMySecrets = gg_helpers.GG_API_GET_OBJECT(target, HEADERS)                    
+        print(f"Number of incidents: {len(allMySecrets)}")            
+        for index, incident in enumerate(allMySecrets):
+            print(f"Incident #{index+1} :")
+            print(f"-----------")
+            incidentData = json.dumps(incident, indent=4)
+            print(incidentData)
+            print(f"-----------")
+    except Exception as e:
+        print(f"Error Detected: {e}")
 
 # -----------------------            
 # MAIN function

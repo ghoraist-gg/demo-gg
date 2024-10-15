@@ -12,7 +12,8 @@ import time
 # -----------------------
 
 # Set the base URL for the API
-BASE_URL = "https://api.gitguardian.com/"
+BASE_URL = "https://api.gitguardian.com/" # US based environment
+#BASE_URL = "https://api.eu1.gitguardian.com/" # EU based environment
 
 global PARAMETER
 PARAMETER = {
@@ -40,14 +41,13 @@ def GG_API_GET_RESPONSE(_endpoint, _headers):
         if response.status_code == HTTP_OK:
             break             
         elif response.status_code == HTTP_TOO_MANY_REQUESTS:
-            print("Rate limit reached from the API. Waiting to retry...")
             retry_after = response.headers.get("Retry-After")
             if retry_after:
                 time_to_wait = int(retry_after)
             else:
                 time_to_wait = DEFAULT_RETRY_DELAY 
 
-            print(f"Waiting {time_to_wait} seconds before retrying...")
+            print(f"Rate limit reached from the API. Waiting {time_to_wait} seconds before retrying...")
             time.sleep(time_to_wait)
         else:
             raise Exception(f"Error communicating with GG API: Received HTTP status code {response.status_code}")
@@ -70,14 +70,13 @@ def GG_API_GET_OBJECT(_endpoint, _headers):
                 break
             _url = response.links["next"]["url"]              
         elif response.status_code == HTTP_TOO_MANY_REQUESTS:
-            print("Rate limit reached from the API. Waiting to retry...")
             retry_after = response.headers.get("Retry-After")
             if retry_after:
                 time_to_wait = int(retry_after)
             else:
                 time_to_wait = DEFAULT_RETRY_DELAY
 
-            print(f"Waiting {time_to_wait} seconds before retrying...")
+            print(f"Rate limit reached from the API. Waiting {time_to_wait} seconds before retrying...")
             time.sleep(time_to_wait)
         else:
             raise Exception(f"Error communicating with GG API: Received HTTP status code {response.status_code}")
@@ -87,7 +86,7 @@ def GG_API_GET_OBJECT(_endpoint, _headers):
 
 
 # -----------------------
-# Generic function to merge 2 strings and build a URL
+# Generic function to merge 2 strings and build a URL w/o checking the "/" in the middle
 # -----------------------
 def build_url(_prefix,_suffix):
     # Remove trailing slash from prefix (if any) and leading slash from suffix (if any)
