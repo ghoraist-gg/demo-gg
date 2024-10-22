@@ -1,39 +1,32 @@
 import requests
 import time
 
-
 # List of functions:
 # def GG_API_GET_RESPONSE(_endpoint, _headers): http_response
 # def GG_API_GET_OBJECT(_endpoint, _headers): API_DATA []
-
+# def GG_API_POST(_endpoint,_body, _headers): http_response
 
 # -----------------------
 # INIT part
 # -----------------------
 
 # Set the base URL for the API
-BASE_URL = "https://api.gitguardian.com/" # US based environment
-#BASE_URL = "https://api.eu1.gitguardian.com/" # EU based environment
+BASE_URL = "https://api.gitguardian.com/v1" # US based environment
+#BASE_URL = "https://api.eu1.gitguardian.com/v1" # EU based environment
 
-global debug
 debug = True
 
-global PARAMETER
 PARAMETER = {
     "per_page": 100,
 }
 
-global HTTP_OK
 HTTP_OK = 200
-
-global HTTP_CREATED
 HTTP_CREATED = 201
-
-global HTTP_TOO_MANY_REQUESTS
+HTTP_REQUEST_OK = 204
 HTTP_TOO_MANY_REQUESTS = 429
+HTTP_BAD_GATEWAY = 502
 
-global DEFAULT_RETRY_DELAY
-DEFAULT_RETRY_DELAY = 60 #by default, retry after 60 sec
+DEFAULT_RETRY_DELAY = 10 #by default, retry after 10 sec in case of a 429
 
 # -----------------------
 # Generic function to query the API w/o pagination on GET request & return the response object
@@ -42,8 +35,8 @@ DEFAULT_RETRY_DELAY = 60 #by default, retry after 60 sec
 def GG_API_GET_RESPONSE(_endpoint, _headers):
     _url = build_url(BASE_URL,_endpoint)
     while True:
-        response = requests.get(_url, headers=_headers)
-
+        response = requests.get(_url, headers=_headers, params=PARAMETER)
+        if debug: print(f"[DEBUG][GET_RESPONSE] response.status_code= {response.status_code}")
         if response.status_code == HTTP_OK:
             break             
         elif response.status_code == HTTP_TOO_MANY_REQUESTS:
@@ -65,24 +58,29 @@ def GG_API_GET_RESPONSE(_endpoint, _headers):
 # https://docs.gitguardian.com/api-docs/pagination
 # -----------------------
 def GG_API_GET_OBJECT(_endpoint, _headers):
-    _url = build_url(BASE_URL,_endpoint)
+    _url = build_url(BASE_URL,_endpoint)   
     API_Data = []
+    firstIteration = True
     while True:
-        response = requests.get(_url, headers=_headers)
-
+        if debug: print(f"[DEBUG][GET_OBJECT] _url= {_url}")
+        if firstIteration : response = requests.get(_url, headers=_headers, params=PARAMETER)
+        else : response = requests.get(_url, headers=_headers)
+        firstIteration = False
+        if debug: print(f"[DEBUG][GET_OBJECT] response.status_code= {response.status_code}")
         if response.status_code == HTTP_OK:
             API_Data += response.json()
             if "next" not in response.links:
                 break
-            _url = response.links["next"]["url"]              
-        elif response.status_code == HTTP_TOO_MANY_REQUESTS:
+            else :
+                _url = response.links["next"]["url"]              
+        elif response.status_code == HTTP_TOO_MANY_REQUESTS or (not firstIteration and response.status_code == HTTP_BAD_GATEWAY) :
             retry_after = response.headers.get("Retry-After")
             if retry_after:
                 time_to_wait = int(retry_after)
             else:
                 time_to_wait = DEFAULT_RETRY_DELAY
 
-            print(f"Rate limit reached from the API. Waiting {time_to_wait} seconds before retrying...")
+            print(f"Error {response.status_code} from the API. Waiting {time_to_wait} seconds before retrying...")
             time.sleep(time_to_wait)
         else:
             raise Exception(f"Error communicating with GG API: Received HTTP status code {response.status_code} - {response.text}")
@@ -97,13 +95,13 @@ def GG_API_GET_OBJECT(_endpoint, _headers):
 def GG_API_POST(_endpoint,_body, _headers):
     _url = build_url(BASE_URL,_endpoint)
     if debug:
-        print(f"[DEBUG]---- GG_API_POST _url = {_url} -----")
-        print(f"[DEBUG]---- GG_API_POST _body = {_body} -----")
+        print(f"[DEBUG][API_POST] _url = {_url} -----")
+        print(f"[DEBUG][API_POST] _body = {_body} -----")
         
     while True:
         response = requests.post(_url,_body,headers=_headers)
 
-        if response.status_code == HTTP_OK or response.status_code == HTTP_CREATED :
+        if response.status_code == HTTP_OK or response.status_code == HTTP_CREATED or response.status_code == HTTP_REQUEST_OK:
             break             
         elif response.status_code == HTTP_TOO_MANY_REQUESTS:
             retry_after = response.headers.get("Retry-After")

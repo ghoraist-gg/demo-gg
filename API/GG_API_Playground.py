@@ -1,6 +1,8 @@
 import os
 import json
 import gg_helpers
+import time
+from datetime import datetime
 from dotenv import load_dotenv
 
 # -----------------------
@@ -9,11 +11,9 @@ from dotenv import load_dotenv
 
 # Load API key from .env file
 load_dotenv()
-global API_KEY
 API_KEY = os.getenv("GITGUARDIAN_API_KEY")
 
 # Set the headers for authentication
-global HEADERS
 HEADERS = {
     "Authorization": f"Token {API_KEY}",
     "Content-Type": "application/json; charset=UTF-8"
@@ -25,7 +25,7 @@ HEADERS = {
 # -----------------------
 def list_members():
     print(f"---- list_members -----")
-    target = "v1/members"
+    target = "members"
     
     try:
         allMembers = gg_helpers.GG_API_GET_OBJECT(target, HEADERS)                    
@@ -46,7 +46,7 @@ def list_members():
 # -----------------------
 def list_secrets():
     print(f"---- list_secrets -----")    
-    target = "v1/incidents/secrets"
+    target = "incidents/secrets"
     
     try:
         allMySecrets = gg_helpers.GG_API_GET_OBJECT(target, HEADERS)                    
@@ -71,7 +71,7 @@ def list_secrets():
 # -----------------------
 def assignIncident(_incident_id,_member_id):
     print(f"---- assignIncident -----")
-    target = f"v1/incidents/secrets/{_incident_id}/assign"
+    target = f"incidents/secrets/{_incident_id}/assign"
     body = {
         "member_id": _member_id
     }
@@ -85,17 +85,16 @@ def assignIncident(_incident_id,_member_id):
         print(f"Error Detected: {e}")
 
 
+# -----------------------   
+def tprint(msg):
+    timestamp=datetime.now().strftime('%M:%S.%f')[:-3]
+    print(timestamp, msg)
+
+
 # -----------------------            
 # MAIN function
 # -----------------------
 if __name__ == "__main__":
     #list_secrets()
-    #list_members()
-    assignIncident("13780368",837753)
+    list_members()
     
-    
-#13780368
-#13780367
-
-#837753
-#851088
