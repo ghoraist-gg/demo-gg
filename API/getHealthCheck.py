@@ -11,6 +11,8 @@ load_dotenv()
 global API_KEY
 API_KEY = os.getenv("GITGUARDIAN_API_KEY")
 
+Hello World!
+
 # Set the headers for authentication
 global HEADERS
 HEADERS = {
