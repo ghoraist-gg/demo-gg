@@ -23,7 +23,8 @@ HEADERS = {
 # -----------------------
 
 def getHealthCheck():
-    url = "v1/health"
+    print(f"---- getHealthCheck -----")
+    url = "health"
     
     try:
         response = gg_helpers.GG_API_GET_RESPONSE(url, HEADERS)

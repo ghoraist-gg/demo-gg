@@ -34,6 +34,7 @@ DEFAULT_RETRY_DELAY = 10 #by default, retry after 10 sec in case of a 429
 # -----------------------
 def GG_API_GET_RESPONSE(_endpoint, _headers):
     _url = build_url(BASE_URL,_endpoint)
+    if debug: print(f"[DEBUG][GET_OBJECT] _url= {_url}")
     while True:
         response = requests.get(_url, headers=_headers, params=PARAMETER)
         if debug: print(f"[DEBUG][GET_RESPONSE] response.status_code= {response.status_code}")
